@@ -12,7 +12,9 @@ import static org.mockito.Mockito.*;
 
 public class TestGoNotificationPlugin {
     @Test
-    public void test_should_run() { assert(true); }
+    public void test_should_run() {
+        assert (true);
+    }
 
     @Test
     public void test_riemann_connect() {
@@ -30,7 +32,8 @@ public class TestGoNotificationPlugin {
         when(eventDSL.tags("appliance", "cold")).thenReturn(eventDSL);
         when(eventDSL.send()).thenReturn(msg);
         try {
-            when(msg.deref(5000, java.util.concurrent.TimeUnit.MILLISECONDS)).thenReturn(null);
+            when(msg.deref(5000, java.util.concurrent.TimeUnit.MILLISECONDS))
+                    .thenReturn(null);
         } catch (IOException e) {
             // This won't happen, because Mockito.
         }
