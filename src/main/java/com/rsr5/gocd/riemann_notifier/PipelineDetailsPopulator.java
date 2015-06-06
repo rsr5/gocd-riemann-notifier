@@ -15,11 +15,11 @@ public class PipelineDetailsPopulator {
     protected RetrievePipelineInstance retrievePipelineInstance = new
             RetrievePipelineInstance();
 
-    String mergeInPipelineInstanceDetails(JsonElement notification,
+    private JsonObject mergeInPipelineInstanceDetails(JsonElement notification,
                                           JsonElement pipelineInstance) {
         JsonObject json = notification.getAsJsonObject();
         json.add("x-pipeline-instance-details", pipelineInstance);
-        return json.toString();
+        return json;
     }
 
     protected JsonElement downloadPipelineDetails(String pipelineName) throws
@@ -37,20 +37,20 @@ public class PipelineDetailsPopulator {
         return pipelines.get(0);
     }
 
-    public String extendMessage(String requestBody) {
+    public JsonObject extendMessage(String requestBody) {
         JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(requestBody).getAsJsonObject();
-        String result;
 
         try {
-            String name = json.get("pipeline-name").getAsString();
+            JsonObject pipeline;
+            pipeline = (JsonObject) json.get("pipeline");
+            String name = pipeline.get("name").getAsString();
             JsonElement extraDetails = downloadPipelineDetails(name);
-            result = mergeInPipelineInstanceDetails(json, extraDetails);
+            json = mergeInPipelineInstanceDetails(json, extraDetails);
         } catch (IOException e) {
             json.addProperty("x-pipeline-error", "Error connecting to GoCD " +
                     "API.");
-            result = json.toString();
         }
-        return result;
+        return json;
     }
 }

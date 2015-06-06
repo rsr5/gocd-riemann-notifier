@@ -4,9 +4,14 @@ import com.aphyr.riemann.Proto.Msg;
 import com.aphyr.riemann.client.EventDSL;
 import com.aphyr.riemann.client.IPromise;
 import com.aphyr.riemann.client.RiemannClient;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.mockito.Mockito.*;
 
@@ -16,18 +21,46 @@ public class TestGoNotificationPlugin {
         assert (true);
     }
 
+    private String readFile(String path) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded);
+    }
+
     @Test
     public void test_riemann_connect() {
         RiemannClient client = mock(RiemannClient.class);
         EventDSL eventDSL = mock(EventDSL.class);
         IPromise<Msg> msg = (IPromise<Msg>) mock(IPromise.class);
+        HttpURLConnection request = mock(HttpURLConnection.class);
+        RetrievePipelineInstance retrieve = mock(RetrievePipelineInstance
+                .class);
+        PipelineDetailsPopulator pipelineDetailsPopulator = new
+                PipelineDetailsPopulator();
+        pipelineDetailsPopulator.retrievePipelineInstance = retrieve;
 
         GoNotificationPlugin goNotificationPlugin = new GoNotificationPlugin();
         goNotificationPlugin.riemann = client;
+        goNotificationPlugin.populator = pipelineDetailsPopulator;
+
+        String content = "{}";
+        String requestBody = "{}";
+        try {
+            requestBody = this.readFile("src/test/example_notification.json");
+        } catch (IOException e) {
+            System.out.println("can't load file example_notification.json");
+        }
+
+        try {
+            content = this.readFile("src/test/test_content.json");
+        } catch (IOException e) {
+            System.out.println("can't load file test_content.json");
+        }
+
+        GoPluginApiRequest apiRequest = mock(GoPluginApiRequest.class);
 
         when(client.event()).thenReturn(eventDSL);
-        when(eventDSL.service("fridge")).thenReturn(eventDSL);
-        when(eventDSL.state("Info")).thenReturn(eventDSL);
+        when(eventDSL.service("gocd.group1.pipeline1.stage1")).thenReturn(eventDSL);
+        when(eventDSL.state("Passed")).thenReturn(eventDSL);
         when(eventDSL.metric(5.3)).thenReturn(eventDSL);
         when(eventDSL.tags("appliance", "cold")).thenReturn(eventDSL);
         when(eventDSL.send()).thenReturn(msg);
@@ -38,12 +71,28 @@ public class TestGoNotificationPlugin {
             // This won't happen, because Mockito.
         }
 
-        goNotificationPlugin.handleStageNotification(null);
 
-        verify(eventDSL, times(1)).service("fridge");
-        verify(eventDSL, times(1)).state("Info");
-        verify(eventDSL, times(1)).metric(5.3);
-        verify(eventDSL, times(1)).tags("appliance", "cold");
-        verify(eventDSL, times(1)).send();
+        try {
+            when(request.getContent()).thenReturn(new ByteArrayInputStream
+                    (content.getBytes("UTF-8")));
+        } catch (IOException e) {
+            // This will not happen, because Mockito.
+        }
+
+        try {
+            when(retrieve.download("pipeline1")).thenReturn(request);
+        } catch (IOException e) {
+            // This will not happen, because Mockito.
+        }
+
+        when(apiRequest.requestBody()).thenReturn(requestBody);
+
+        goNotificationPlugin.handleStageNotification(apiRequest);
+
+        //verify(eventDSL, times(1)).service("fridge");
+        //verify(eventDSL, times(1)).state("Info");
+        //verify(eventDSL, times(1)).metric(5.3);
+        //verify(eventDSL, times(1)).tags("appliance", "cold");
+        //verify(eventDSL, times(1)).send();
     }
 }

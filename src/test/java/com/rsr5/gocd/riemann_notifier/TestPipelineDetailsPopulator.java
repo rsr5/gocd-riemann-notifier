@@ -50,10 +50,7 @@ public class TestPipelineDetailsPopulator {
             // This will not happen, because Mockito.
         }
 
-        requestBody = pipelineDetailsPopulator.extendMessage(requestBody);
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(requestBody).getAsJsonObject();
+        JsonObject json = pipelineDetailsPopulator.extendMessage(requestBody);
 
         assert (json.has("x-pipeline-instance-details"));
     }
@@ -87,10 +84,7 @@ public class TestPipelineDetailsPopulator {
             // This will not happen, because Mockito.
         }
 
-        requestBody = pipelineDetailsPopulator.extendMessage(requestBody);
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(requestBody).getAsJsonObject();
+        JsonObject json = pipelineDetailsPopulator.extendMessage(requestBody);
 
         assert (json.has("x-pipeline-error"));
     }

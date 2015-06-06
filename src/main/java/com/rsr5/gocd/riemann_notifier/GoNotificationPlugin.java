@@ -1,6 +1,8 @@
 package com.rsr5.gocd.riemann_notifier;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
@@ -31,7 +33,7 @@ public class GoNotificationPlugin implements GoPlugin {
 
     protected RiemannClient riemann = null;
 
-    private PipelineDetailsPopulator populator;
+    protected PipelineDetailsPopulator populator = null;
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor
@@ -77,6 +79,26 @@ public class GoNotificationPlugin implements GoPlugin {
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
 
+    private String service(JsonObject json) {
+        JsonObject pipelineObject, stageObject;
+        pipelineObject = (JsonObject) json.get("pipeline");
+        stageObject = (JsonObject) pipelineObject.get("stage");
+
+        String group = pipelineObject.get("group").getAsString();
+        String pipeline = pipelineObject.get("name").getAsString();
+        String stage = stageObject.get("name").getAsString();
+        System.out.println("gocd." +group + "." + pipeline + "." + stage);
+        return "gocd." +group + "." + pipeline + "." + stage;
+    }
+
+    private String state(JsonObject json) {
+        JsonObject pipelineObject, stageObject;
+        pipelineObject = (JsonObject) json.get("pipeline");
+        stageObject = (JsonObject) pipelineObject.get("stage");
+
+        return stageObject.get("state").getAsString();
+    }
+
     protected GoPluginApiResponse handleStageNotification(
             GoPluginApiRequest goPluginApiRequest) {
 
@@ -87,14 +109,15 @@ public class GoNotificationPlugin implements GoPlugin {
 
         response.put("status", "success");
 
-        //String expandedMessage = populator
-        // .extendMessageToIncludePipelineDetails(goPluginApiRequest
-        // .requestBody());
+        JsonObject json = populator.extendMessage(goPluginApiRequest
+                .requestBody());
+
+        System.out.println(json.toString());
 
         try {
             riemann.event().
-                    service("fridge").
-                    state("Info").
+                    service(this.service(json)).
+                    state(this.state(json)).
                     metric(5.3).
                     tags("appliance", "cold").
                     send().
