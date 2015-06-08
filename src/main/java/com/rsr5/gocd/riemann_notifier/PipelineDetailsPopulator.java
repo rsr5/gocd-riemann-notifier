@@ -12,13 +12,18 @@ import java.net.HttpURLConnection;
 
 public class PipelineDetailsPopulator {
 
-    protected RetrievePipelineInstance retrievePipelineInstance = new
-            RetrievePipelineInstance();
+    protected RetrievePipelineHistory retrievePipelineInstance = new
+            RetrievePipelineHistory();
 
-    private JsonObject mergeInPipelineInstanceDetails(JsonElement notification,
-                                          JsonElement pipelineInstance) {
+    protected RetrieveStageArtifacts retrievePipelineArtifacts = new
+            RetrieveStageArtifacts();
+
+    private JsonObject mergeInPipelineInstanceDetails(String attributeName,
+                                                      JsonElement notification,
+                                                      JsonElement
+                                                              pipelineInstance) {
         JsonObject json = notification.getAsJsonObject();
-        json.add("x-pipeline-instance-details", pipelineInstance);
+        json.add(attributeName, pipelineInstance);
         return json;
     }
 
@@ -37,18 +42,36 @@ public class PipelineDetailsPopulator {
         return pipelines.get(0);
     }
 
+    protected JsonObject downloadPipelineArtifacts(String pipelineName,
+                                                   String stageName,
+                                                   int pipelineCounter, int
+                                                           stageCounter,
+                                                   String jobName) throws
+            IOException {
+
+        HttpURLConnection request = retrievePipelineArtifacts.download
+                (pipelineName, stageName, pipelineCounter, stageCounter,
+                        jobName);
+
+        JsonParser parser = new JsonParser();
+        JsonElement rootElement = parser.parse(new InputStreamReader(
+                (InputStream) request.getContent()));
+        return rootElement.getAsJsonObject();
+    }
+
     public JsonObject extendMessage(String requestBody) {
         JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(requestBody).getAsJsonObject();
-
-        System.out.println(json.toString());
 
         try {
             JsonObject pipeline;
             pipeline = (JsonObject) json.get("pipeline");
             String name = pipeline.get("name").getAsString();
             JsonElement extraDetails = downloadPipelineDetails(name);
-            json = mergeInPipelineInstanceDetails(json, extraDetails);
+            json = mergeInPipelineInstanceDetails("x-pipeline-instance" +
+                    "-details", json, extraDetails);
+            json = mergeInPipelineInstanceDetails("x-pipeline-artifacts",
+                    json, extraDetails);
         } catch (IOException e) {
             json.addProperty("x-pipeline-error", "Error connecting to GoCD " +
                     "API.");

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "cruise-output",
+    "url": "http://localhost:8153/go/files/testing213/10/stage1/1/defaultJob/cruise-output",
+    "type": "folder",
+    "files": [
+      {
+        "name": "console.log",
+        "url": "http://localhost:8153/go/files/testing213/10/stage1/1/defaultJob/cruise-output/console.log",
+        "type": "file"
+      },
+      {
+        "name": "md5.checksum",
+        "url": "http://localhost:8153/go/files/testing213/10/stage1/1/defaultJob/cruise-output/md5.checksum",
+        "type": "file"
+      }
+    ]
+  },
+  {
+    "name": "testfile",
+    "url": "http://localhost:8153/go/files/testing213/10/stage1/1/defaultJob/testfile",
+    "type": "file"
+  }
+]

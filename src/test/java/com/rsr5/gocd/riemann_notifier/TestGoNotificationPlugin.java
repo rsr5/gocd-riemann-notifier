@@ -32,7 +32,7 @@ public class TestGoNotificationPlugin {
         EventDSL eventDSL = mock(EventDSL.class);
         IPromise<Msg> msg = (IPromise<Msg>) mock(IPromise.class);
         HttpURLConnection request = mock(HttpURLConnection.class);
-        RetrievePipelineInstance retrieve = mock(RetrievePipelineInstance
+        RetrievePipelineHistory retrieve = mock(RetrievePipelineHistory
                 .class);
         PipelineDetailsPopulator pipelineDetailsPopulator = new
                 PipelineDetailsPopulator();
