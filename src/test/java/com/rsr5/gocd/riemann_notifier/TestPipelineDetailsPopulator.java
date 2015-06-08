@@ -76,7 +76,7 @@ public class TestPipelineDetailsPopulator {
         }
 
         try {
-            when(retrieveStageArtifacts.download("pipeline1", "stage1", "1", "1", "job1")).thenReturn(requestHistory);
+            when(retrieveStageArtifacts.download("pipeline1", "stage1", "1", "1", "job1")).thenReturn(requestArtifacts);
         } catch (IOException e) {
             // This will not happen, because Mockito.
         }
