@@ -42,10 +42,10 @@ public class PipelineDetailsPopulator {
         return pipelines.get(0);
     }
 
-    protected JsonObject downloadPipelineArtifacts(String pipelineName,
+    protected JsonArray downloadPipelineArtifacts(String pipelineName,
                                                    String stageName,
-                                                   int pipelineCounter, int
-                                                           stageCounter,
+                                                   String pipelineCounter,
+                                                   String stageCounter,
                                                    String jobName) throws
             IOException {
 
@@ -56,7 +56,7 @@ public class PipelineDetailsPopulator {
         JsonParser parser = new JsonParser();
         JsonElement rootElement = parser.parse(new InputStreamReader(
                 (InputStream) request.getContent()));
-        return rootElement.getAsJsonObject();
+        return rootElement.getAsJsonArray();
     }
 
     public JsonObject extendMessage(String requestBody) {
@@ -64,18 +64,29 @@ public class PipelineDetailsPopulator {
         JsonObject json = parser.parse(requestBody).getAsJsonObject();
 
         try {
-            JsonObject pipeline;
-            pipeline = (JsonObject) json.get("pipeline");
-            String name = pipeline.get("name").getAsString();
-            JsonElement extraDetails = downloadPipelineDetails(name);
+            JsonObject pipelineObject = (JsonObject) json.get("pipeline");
+            JsonObject stageObject = (JsonObject) pipelineObject.get("stage");
+
+            String pipeline = pipelineObject.get("name").getAsString();
+            String pipelineCounter = pipelineObject.get("counter")
+                    .getAsString();
+            String stage = stageObject.get("name").getAsString();
+            String stageCounter = stageObject.get("counter").getAsString();
+
+            JsonElement extraDetails = downloadPipelineDetails(pipeline);
             json = mergeInPipelineInstanceDetails("x-pipeline-instance" +
                     "-details", json, extraDetails);
+
+            extraDetails = downloadPipelineArtifacts(pipeline, stage,
+                    pipelineCounter, stageCounter, "job1");
+
             json = mergeInPipelineInstanceDetails("x-pipeline-artifacts",
                     json, extraDetails);
         } catch (IOException e) {
             json.addProperty("x-pipeline-error", "Error connecting to GoCD " +
                     "API.");
         }
+
         return json;
     }
 }

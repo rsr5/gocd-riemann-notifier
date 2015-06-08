@@ -1,6 +1,9 @@
 package com.rsr5.gocd.riemann_notifier;
 
+import com.aphyr.riemann.client.EventDSL;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
@@ -16,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -94,9 +98,12 @@ public class GoNotificationPlugin implements GoPlugin {
 
         String group = pipelineObject.get("group").getAsString();
         String pipeline = pipelineObject.get("name").getAsString();
+        String pipelineCounter = pipelineObject.get("counter").getAsString();
         String stage = stageObject.get("name").getAsString();
+        String stageCounter = stageObject.get("counter").getAsString();
 
-        return "gocd." + group + "." + pipeline + "." + stage;
+        return "gocd." + group + "." + pipeline + "." + pipelineCounter + "."
+                + stage + "." + stageCounter;
     }
 
     private String state(JsonObject json) {
@@ -124,6 +131,7 @@ public class GoNotificationPlugin implements GoPlugin {
             riemann.event().
                     service(this.service(json)).
                     state(this.state(json)).
+                    description(json.toString()).
                     send().
                     deref(5000, java.util.concurrent.TimeUnit.MILLISECONDS);
         } catch (IOException e) {
