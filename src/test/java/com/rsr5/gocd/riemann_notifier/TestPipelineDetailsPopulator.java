@@ -30,7 +30,13 @@ public class TestPipelineDetailsPopulator {
         pipelineDetailsPopulator.retrievePipelineInstance = retrieve;
 
         String content = "{}";
-        String requestBody = "{\"pipeline-name\": \"pipeline1\"}";
+        String requestBody = "{}";
+        try {
+            requestBody = this.readFile("src/test/example_notification.json");
+        } catch (IOException e) {
+            System.out.println("can't load file example_notification.json");
+        }
+
         try {
             content = this.readFile("src/test/test_content.json");
         } catch (IOException e) {
@@ -65,7 +71,13 @@ public class TestPipelineDetailsPopulator {
         pipelineDetailsPopulator.retrievePipelineInstance = retrieve;
 
         String content = "{}";
-        String requestBody = "{\"pipeline-name\": \"pipeline1\"}";
+        String requestBody = "{}";
+        try {
+            requestBody = this.readFile("src/test/example_notification.json");
+        } catch (IOException e) {
+            System.out.println("can't load file example_notification.json");
+        }
+
         try {
             content = this.readFile("src/test/test_content.json");
         } catch (IOException e) {

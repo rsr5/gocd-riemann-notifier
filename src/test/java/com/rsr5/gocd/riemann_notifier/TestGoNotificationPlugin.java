@@ -61,8 +61,6 @@ public class TestGoNotificationPlugin {
         when(client.event()).thenReturn(eventDSL);
         when(eventDSL.service("gocd.group1.pipeline1.stage1")).thenReturn(eventDSL);
         when(eventDSL.state("Passed")).thenReturn(eventDSL);
-        when(eventDSL.metric(5.3)).thenReturn(eventDSL);
-        when(eventDSL.tags("appliance", "cold")).thenReturn(eventDSL);
         when(eventDSL.send()).thenReturn(msg);
         try {
             when(msg.deref(5000, java.util.concurrent.TimeUnit.MILLISECONDS))

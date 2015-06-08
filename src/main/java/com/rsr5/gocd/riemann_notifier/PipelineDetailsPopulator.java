@@ -41,6 +41,8 @@ public class PipelineDetailsPopulator {
         JsonParser parser = new JsonParser();
         JsonObject json = parser.parse(requestBody).getAsJsonObject();
 
+        System.out.println(json.toString());
+
         try {
             JsonObject pipeline;
             pipeline = (JsonObject) json.get("pipeline");

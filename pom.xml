@@ -43,13 +43,13 @@
             <version>0.3.1</version>
         </dependency>
 
-        <!--
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
             <version>1.2.1</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>org.java-websocket</groupId>
             <artifactId>Java-WebSocket</artifactId>
@@ -110,8 +110,9 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
             <plugin>
-                <!-- Sun coding standard -->
+
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>2.15</version>
@@ -147,6 +148,7 @@
                     </dependencies>
                 </plugin>
             </plugins>
-        </pluginManagement>
+        </pluginManagement> -->
+        </plugins>
     </build>
 </project>

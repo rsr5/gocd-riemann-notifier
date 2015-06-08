@@ -1,7 +1,6 @@
 package com.rsr5.gocd.riemann_notifier;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
@@ -13,8 +12,9 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 
 import com.aphyr.riemann.client.RiemannClient;
 
-import java.util.*;
 import java.io.IOException;
+import java.util.*;
+
 
 @Extension
 public class GoNotificationPlugin implements GoPlugin {
@@ -23,8 +23,8 @@ public class GoNotificationPlugin implements GoPlugin {
             .class);
 
     public static final String EXTENSION_TYPE = "notification";
-    private static final List<String> goSupportedVersions = Arrays.asList("1" +
-            ".0");
+    private static final List<String> goSupportedVersions = Collections
+            .singletonList("1.0");
     public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN =
             "notifications-interested-in";
     public static final String REQUEST_STAGE_STATUS = "stage-status";
@@ -39,10 +39,14 @@ public class GoNotificationPlugin implements GoPlugin {
     public void initializeGoApplicationAccessor(GoApplicationAccessor
                                                         goApplicationAccessor) {
 
+        PluginConfig pluginConfig = new PluginConfig();
+        int riemannPort = pluginConfig.getRiemannPort();
+        String riemannHost = pluginConfig.getRiemannHost();
+
         if (riemann == null) {
             this.populator = new PipelineDetailsPopulator();
             try {
-                riemann = RiemannClient.tcp("localhost", 5555);
+                riemann = RiemannClient.tcp(riemannHost, riemannPort);
                 riemann.connect();
             } catch (IOException e) {
                 LOGGER.warn("Unable to connect to Riemann at localhost");
@@ -72,9 +76,9 @@ public class GoNotificationPlugin implements GoPlugin {
     }
 
     private GoPluginApiResponse handleNotificationsInterestedIn() {
-        Map<String, List<String>> response = new HashMap<String,
-                List<String>>();
-        response.put("notifications", Arrays.asList(REQUEST_STAGE_STATUS));
+        Map<String, List<String>> response = new HashMap<>();
+        response.put("notifications", Collections.singletonList
+                (REQUEST_STAGE_STATUS));
         LOGGER.debug("requesting details of stage-status notifications");
         return renderJSON(SUCCESS_RESPONSE_CODE, response);
     }
@@ -87,8 +91,8 @@ public class GoNotificationPlugin implements GoPlugin {
         String group = pipelineObject.get("group").getAsString();
         String pipeline = pipelineObject.get("name").getAsString();
         String stage = stageObject.get("name").getAsString();
-        System.out.println("gocd." +group + "." + pipeline + "." + stage);
-        return "gocd." +group + "." + pipeline + "." + stage;
+
+        return "gocd." + group + "." + pipeline + "." + stage;
     }
 
     private String state(JsonObject json) {
@@ -104,22 +108,18 @@ public class GoNotificationPlugin implements GoPlugin {
 
         int responseCode = SUCCESS_RESPONSE_CODE;
 
-        Map<String, Object> response = new HashMap<String, Object>();
-        List<String> messages = new ArrayList<String>();
+        Map<String, Object> response = new HashMap<>();
+        List<String> messages = new ArrayList<>();
 
         response.put("status", "success");
 
         JsonObject json = populator.extendMessage(goPluginApiRequest
                 .requestBody());
 
-        System.out.println(json.toString());
-
         try {
             riemann.event().
                     service(this.service(json)).
                     state(this.state(json)).
-                    metric(5.3).
-                    tags("appliance", "cold").
                     send().
                     deref(5000, java.util.concurrent.TimeUnit.MILLISECONDS);
         } catch (IOException e) {
