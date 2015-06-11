@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 @Extension
@@ -42,6 +44,8 @@ public class GoNotificationPlugin implements GoPlugin {
     protected RiemannClient riemann = null;
 
     protected PipelineDetailsPopulator populator = null;
+    protected PipelineStatePopulator statePopulator = null;
+
 
     @Override
     public void initializeGoApplicationAccessor(GoApplicationAccessor
@@ -53,12 +57,60 @@ public class GoNotificationPlugin implements GoPlugin {
 
         if (riemann == null) {
             this.populator = new PipelineDetailsPopulator();
+            this.statePopulator = new PipelineStatePopulator();
             try {
                 riemann = RiemannClient.tcp(riemannHost, riemannPort);
                 riemann.connect();
             } catch (IOException e) {
-                LOGGER.warn("Unable to connect to Riemann at localhost");
+                LOGGER.warn("Unable to connect to Riemann at " + riemannHost);
             }
+        }
+
+
+
+        /* Setup the pipeline state time */
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                fetchCurrentState();
+            }
+        }, 5000, pluginConfig.getFetchInterval());
+    }
+
+    protected void fetchCurrentState() {
+        LOGGER.info("Fetching current state.");
+        HashMap<String, String> states = null;
+        try {
+            states = statePopulator.getStageStates();
+        } catch (IOException e) {
+            LOGGER.warn("Couldn't fetch RSS!");
+            return;
+        }
+
+        Iterator it = states.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println(pair.getKey() + " = " + pair.getValue());
+
+            try{
+
+                if (!riemann.isConnected()) {
+                    riemann.connect();
+                }
+
+                riemann.event().
+                        service(pair.getKey().toString()).
+                        state(pair.getValue().toString()).
+                        description("Pipeline state update.").
+                        send().
+                        deref(5000, java.util.concurrent.TimeUnit.MILLISECONDS);
+            } catch (IOException e) {
+                LOGGER.error("Failed to send update to Riemann", e);
+            }
+
+            it.remove(); // avoids a ConcurrentModificationException
         }
     }
 

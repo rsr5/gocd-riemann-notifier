@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.mockito.Mockito.*;
-
+import static org.junit.Assert.*;
 public class TestPipelineDetailsPopulator {
 
     private String readFile(String path) throws IOException {

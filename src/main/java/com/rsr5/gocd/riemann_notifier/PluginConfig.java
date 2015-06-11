@@ -14,6 +14,7 @@ public class PluginConfig {
     private int riemannPort = 5555;
     private String riemannHost = "localhost";
 
+    protected long fetchInterval = 59000;
 
     public PluginConfig() {
         String userHome = System.getProperty("user.home");
@@ -30,14 +31,18 @@ public class PluginConfig {
             if (config.hasPath("riemann_host")) {
                 riemannHost = config.getString("riemann_host");
             }
+
+            if (config.hasPath("fetch_interval")) {
+                fetchInterval = config.getLong("fetch_interval");
+            }
         }
     }
 
     public int getRiemannPort() {
         return riemannPort;
     }
-
     public String getRiemannHost() {
         return riemannHost;
     }
+    public long getFetchInterval() { return fetchInterval; }
 }

@@ -1,0 +1,4 @@
+<Projects>
+    <Project name="pipeline1 :: stage1" activity="Sleeping" lastBuildStatus="Success" lastBuildLabel="1" lastBuildTime="2015-06-11T14:48:23" webUrl="https://localhost:8154/go/pipelines/pipeline1/1/stage1/1"/>
+    <Project name="pipeline1 :: stage1 :: job1" activity="Sleeping" lastBuildStatus="Success" lastBuildLabel="1" lastBuildTime="2015-06-11T14:48:23" webUrl="https://localhost:8154/go/tab/build/detail/pipeline1/1/stage1/1/job1"/>
+</Projects>
