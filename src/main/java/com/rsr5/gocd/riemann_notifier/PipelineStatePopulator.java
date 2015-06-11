@@ -56,7 +56,7 @@ public class PipelineStatePopulator {
                 String[] parts = name.split(" :: ");
                 String pipeline = "";
                 if (parts.length == 2) {
-                    pipeline = parts[0] + "." + parts[1];
+                    pipeline = parts[0] + ":" + parts[1];
                     pipelineStates.put(pipeline,
                             eElement.getAttribute("activity"));
                 }

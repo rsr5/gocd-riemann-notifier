@@ -101,7 +101,7 @@ public class GoNotificationPlugin implements GoPlugin {
                 }
 
                 riemann.event().
-                        service(pair.getKey().toString()).
+                        service("gocd:" + pair.getKey().toString()).
                         state(pair.getValue().toString()).
                         description("Pipeline state update.").
                         send().
@@ -148,14 +148,10 @@ public class GoNotificationPlugin implements GoPlugin {
         pipelineObject = (JsonObject) json.get("pipeline");
         stageObject = (JsonObject) pipelineObject.get("stage");
 
-        String group = pipelineObject.get("group").getAsString();
         String pipeline = pipelineObject.get("name").getAsString();
-        String pipelineCounter = pipelineObject.get("counter").getAsString();
         String stage = stageObject.get("name").getAsString();
-        String stageCounter = stageObject.get("counter").getAsString();
 
-        return "gocd." + group + "." + pipeline + "." + pipelineCounter + "."
-                + stage + "." + stageCounter;
+        return "gocd:" + pipeline + ":" + stage;
     }
 
     private String state(JsonObject json) {
