@@ -54,7 +54,7 @@ public class TestPipelineStatePopulator {
             // This will not happen, because Mockito.
         }
 
-        assert(stageStates.containsKey("pipeline1.stage1"));
-        assertEquals(stageStates.get("pipeline1.stage1"), "Sleeping");
+        assert(stageStates.containsKey("pipeline1:stage1"));
+        assertEquals(stageStates.get("pipeline1:stage1"), "Sleeping");
     }
 }

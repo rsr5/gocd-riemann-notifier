@@ -59,7 +59,7 @@ public class TestGoNotificationPlugin {
         GoPluginApiRequest apiRequest = mock(GoPluginApiRequest.class);
 
         when(client.event()).thenReturn(eventDSL);
-        when(eventDSL.service("gocd.group1.pipeline1.1.stage1.1")).thenReturn(eventDSL);
+        when(eventDSL.service("gocd:pipeline1:stage1")).thenReturn(eventDSL);
         when(eventDSL.description(anyString())).thenReturn(eventDSL);
         when(eventDSL.state("Passed")).thenReturn(eventDSL);
         when(eventDSL.send()).thenReturn(msg);
