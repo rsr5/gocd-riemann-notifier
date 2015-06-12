@@ -51,11 +51,12 @@ public class GoNotificationPlugin implements GoPlugin {
     public void initializeGoApplicationAccessor(GoApplicationAccessor
                                                         goApplicationAccessor) {
 
-        PluginConfig pluginConfig = new PluginConfig();
-        int riemannPort = pluginConfig.getRiemannPort();
-        String riemannHost = pluginConfig.getRiemannHost();
-
         if (riemann == null) {
+
+            PluginConfig pluginConfig = new PluginConfig();
+            int riemannPort = pluginConfig.getRiemannPort();
+            String riemannHost = pluginConfig.getRiemannHost();
+
             this.populator = new PipelineDetailsPopulator();
             this.statePopulator = new PipelineStatePopulator();
             try {
@@ -64,19 +65,17 @@ public class GoNotificationPlugin implements GoPlugin {
             } catch (IOException e) {
                 LOGGER.warn("Unable to connect to Riemann at " + riemannHost);
             }
+
+            /* Setup the pipeline state time */
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    fetchCurrentState();
+                }
+            }, 5000, pluginConfig.getFetchInterval());
         }
-
-
-
-        /* Setup the pipeline state time */
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-
-            @Override
-            public void run() {
-                fetchCurrentState();
-            }
-        }, 5000, pluginConfig.getFetchInterval());
     }
 
     protected void fetchCurrentState() {
@@ -85,7 +84,7 @@ public class GoNotificationPlugin implements GoPlugin {
         try {
             states = statePopulator.getStageStates();
         } catch (IOException e) {
-            LOGGER.warn("Couldn't fetch RSS!");
+            LOGGER.warn("Couldn't fetch RSS! " + e.getMessage());
             return;
         }
 

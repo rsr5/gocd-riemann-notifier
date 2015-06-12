@@ -6,7 +6,7 @@
 
     <groupId>com.rsr5</groupId>
     <artifactId>gocd-riemann-notifier</artifactId>
-    <version>0.7</version>
+    <version>0.8</version>
     <packaging>jar</packaging>
 
     <properties>
