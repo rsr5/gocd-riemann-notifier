@@ -47,6 +47,8 @@ public class TestPipelineStatePopulator {
 
         PipelineStatePopulator pipelineStatePopulator = new
                 PipelineStatePopulator();
+        pipelineStatePopulator.retrievePipelineRSS = retrieve;
+
         HashMap<String, String> stageStates = new HashMap<>();
         try {
             stageStates = pipelineStatePopulator.getStageStates();

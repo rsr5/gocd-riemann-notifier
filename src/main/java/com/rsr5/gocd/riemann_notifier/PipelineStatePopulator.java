@@ -21,7 +21,7 @@ public class PipelineStatePopulator {
     private static Logger LOGGER = Logger.getLoggerFor(PipelineStatePopulator
             .class);
 
-    private RetrievePipelineRSS retrievePipelineRSS = new RetrievePipelineRSS();
+    protected RetrievePipelineRSS retrievePipelineRSS = new RetrievePipelineRSS();
 
     public HashMap<String, String> getStageStates() throws IOException {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -54,7 +54,7 @@ public class PipelineStatePopulator {
                 Element eElement = (Element) nNode;
                 String name = eElement.getAttribute("name");
                 String[] parts = name.split(" :: ");
-                String pipeline = "";
+                String pipeline;
                 if (parts.length == 2) {
                     pipeline = parts[0] + ":" + parts[1];
                     pipelineStates.put(pipeline,
